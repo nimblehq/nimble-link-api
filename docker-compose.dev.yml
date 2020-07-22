@@ -1,0 +1,16 @@
+version: '3.5'
+
+services:
+  database:
+    image: postgres
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: passw0rd
+      POSTGRES_DB: backend_debug
+    ports:
+      - "55432:5432"
+    restart: unless-stopped
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+volumes:
+  pg_data:
