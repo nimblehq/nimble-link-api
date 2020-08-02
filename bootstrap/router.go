@@ -1,9 +1,10 @@
 package bootstrap
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-gonic/gin"
+	"github.com/nimble-link/backend/routes"
+)
 
 func SetupRouter(g *gin.Engine) {
-	g.GET("/", func(ctx *gin.Context) {
-		ctx.JSON(200, gin.H{})
-	})
+	routes.Register(g)
 }
