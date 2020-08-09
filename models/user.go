@@ -10,7 +10,7 @@ type User struct {
 	Sub     string `json:"sub" gorm:"column:sub;type:varchar(255);not null"`
 	Picture string `json:"picture" gorm:"column:picture;type:varchar(255);not null"`
 	Email   string `json:"email" gorm:"column:email;type:varchar(255);unique;default:NULL" sql:"index"`
-	Links 	[]Link
+	Links   []Link
 }
 
 func FindUserByEmail(userEmail string) *User {
