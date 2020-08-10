@@ -10,8 +10,8 @@ import (
 	"github.com/nimble-link/backend/models"
 )
 
-func IsDuplicateCustomAlias(customAlias string) bool {
-	link := models.FindLinkByCustomAlias(customAlias)
+func IsDuplicateAlias(alias string) bool {
+	link := models.FindLinkByAlias(alias)
 	return link.ID != 0
 }
 

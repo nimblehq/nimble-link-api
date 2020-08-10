@@ -11,49 +11,45 @@ import (
 
 type ShortLinkInput struct {
 	OriginalURL string `json:"original_url" binding:"required"`
-	CustomAlias string `json:"custom_alias"`
+	Alias       string `json:"alias"`
 	Password    string `json:"password"`
 }
 
 func CreateLink(c *gin.Context) {
-
 	var input ShortLinkInput
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 
-	// get user info
 	user, err := authentication.GetCurrentUserFromContext(c)
 	if err != nil {
-		c.AbortWithStatus(http.StatusBadRequest)
+		c.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
 
 	userID := user.ID
 	originalURL := input.OriginalURL
 
-	if customAlias := input.CustomAlias; customAlias != "" {
-		// save user's CustomAlias
-		if linkutils.IsDuplicateCustomAlias(customAlias) {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Duplicate Custom Alias"})
+	if alias := input.Alias; alias != "" {
+		if linkutils.IsDuplicateAlias(alias) {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Duplicate Alias"})
 		} else {
-			saveLink(c, originalURL, customAlias, input.Password, userID)
+			saveLink(c, originalURL, alias, input.Password, userID)
 		}
 	} else {
-		// generate random CustomAlias
-		customAlias := linkutils.GenerateHashFrom(originalURL, userID)
+		alias := linkutils.GenerateHashFrom(originalURL, userID)
 
-		for linkutils.IsDuplicateCustomAlias(customAlias) {
-			customAlias = linkutils.GenerateHashFrom(originalURL, userID)
+		for linkutils.IsDuplicateAlias(alias) {
+			alias = linkutils.GenerateHashFrom(originalURL, userID)
 		}
 
-		saveLink(c, originalURL, customAlias, input.Password, userID)
+		saveLink(c, originalURL, alias, input.Password, userID)
 	}
 }
 
-func saveLink(c *gin.Context, OriginalURL string, CustomAlias string, Password string, UserID uint) {
-	link := models.Link{OriginalURL: OriginalURL, CustomAlias: CustomAlias, Password: Password, UserID: UserID}
+func saveLink(c *gin.Context, OriginalURL string, Alias string, Password string, UserID uint) {
+	link := models.Link{OriginalURL: OriginalURL, Alias: Alias, Password: Password, UserID: UserID}
 	if errors := link.Save(); errors != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"errors": errors})
 		return

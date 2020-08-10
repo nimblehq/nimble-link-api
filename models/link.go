@@ -7,8 +7,8 @@ import (
 
 type Link struct {
 	gorm.Model
-	OriginalURL string `json:"omitempty" gorm:"column:original_url;not null"`
-	CustomAlias string `gorm:"column:custom_alias;type:varchar(255);unique;not null"`
+	OriginalURL string `gorm:"column:original_url;not null"`
+	Alias       string `gorm:"column:alias;type:varchar(255);unique;not null"`
 	Password    string `gorm:"column:password;type:varchar(255);;default:NULL"`
 	UserID      uint   `json:"-"`
 }
@@ -21,8 +21,8 @@ func (link *Link) Save() []error {
 	return nil
 }
 
-func FindLinkByCustomAlias(customAlias string) *Link {
+func FindLinkByAlias(alias string) *Link {
 	var link = new(Link)
-	database.DB.Where("custom_alias = ?", customAlias).First(link)
+	database.DB.Where("alias = ?", alias).First(link)
 	return link
 }
