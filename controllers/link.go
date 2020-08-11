@@ -18,7 +18,7 @@ type ShortLinkInput struct {
 func CreateLink(c *gin.Context) {
 	var input ShortLinkInput
 	if err := c.ShouldBindJSON(&input); err != nil {
-		c.AbortWithStatus(http.StatusBadRequest)
+		c.AbortWithStatus(http.StatusUnprocessableEntity)
 		return
 	}
 
@@ -51,7 +51,7 @@ func CreateLink(c *gin.Context) {
 func saveLink(c *gin.Context, OriginalURL string, Alias string, Password string, UserID uint) {
 	link := models.Link{OriginalURL: OriginalURL, Alias: Alias, Password: Password, UserID: UserID}
 	if errors := link.Save(); errors != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"errors": errors})
+		c.JSON(http.StatusInternalServerError, gin.H{"errors": errors})
 		return
 	}
 
