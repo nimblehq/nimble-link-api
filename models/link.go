@@ -1,15 +1,14 @@
 package models
 
 import (
-	"github.com/jinzhu/gorm"
 	"github.com/nimble-link/backend/database"
 )
 
 type Link struct {
-	gorm.Model
-	OriginalURL string `gorm:"column:original_url;not null"`
-	Alias       string `gorm:"column:alias;type:varchar(255);unique;not null"`
-	Password    string `gorm:"column:password;type:varchar(255);;default:NULL"`
+	BaseModel
+	OriginalURL string `json:"original_url" gorm:"column:original_url;not null"`
+	Alias       string `json:"alias" gorm:"column:alias;type:varchar(255);unique;not null"`
+	Password    string `json:"password" gorm:"column:password;type:varchar(255);;default:NULL"`
 	UserID      uint   `json:"-"`
 }
 
