@@ -24,4 +24,6 @@ func registerWeb(r *ginutils.ApplicationRouter, mids ...gin.HandlerFunc) {
 
 	r.Register("GET", "/login", middlewares.Guest(), controllers.Login)
 	r.Register("POST", "/logout", middlewares.Authenticated(), controllers.Logout)
+
+	r.Register("POST", "/links", controllers.CreateLink)
 }

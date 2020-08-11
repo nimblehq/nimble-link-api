@@ -12,6 +12,7 @@ func SetupDB() *gorm.DB {
 	db.LogMode(true)
 
 	db.AutoMigrate(&models.User{})
+	db.AutoMigrate(&models.Link{})
 
 	return db
 }
