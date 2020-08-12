@@ -7,7 +7,7 @@ import (
 
 func CurrentUser() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		_ = authentication.SaveCurrentUserToContext(c)
+		authentication.SaveCurrentUserToContext(c)
 
 		c.Next()
 	}

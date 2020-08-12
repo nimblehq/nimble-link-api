@@ -3,18 +3,25 @@ package controllers
 import (
 	"net/http"
 
-	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
+	"github.com/nimble-link/backend/database"
+	"github.com/nimble-link/backend/models"
+	"github.com/nimble-link/backend/services/authentication"
 )
 
 func Logout(c *gin.Context) {
-	session := sessions.Default(c)
+	user, err := authentication.GetCurrentUserFromContext(c)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, err.Error())
+		return
+	}
 
-	session.Delete("state")
-	session.Delete("current_user")
+	var tokens []models.Token
 
-	session.Save()
-	c.Keys["current_user"] = nil
+	database.DB.Model(user).Related(&tokens)
+	for _, token := range tokens {
+		token.Delete()
+	}
 
 	c.JSON(http.StatusOK, http.StatusText(http.StatusOK))
 }
