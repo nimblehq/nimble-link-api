@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/nimble-link/backend/database"
@@ -60,6 +61,32 @@ func GetLinks(c *gin.Context) {
 	database.DB.Model(user).Related(&links)
 
 	c.JSON(http.StatusOK, links)
+}
+
+func DeleteLink(c *gin.Context) {
+	user, _ := authentication.GetCurrentUserFromContext(c)
+	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		c.JSON(http.StatusNotFound, http.StatusText(http.StatusNotFound))
+		return
+	}
+
+	var link = new(models.Link)
+	database.DB.Where(&models.Link{
+		UserID: user.ID,
+		BaseModel: models.BaseModel{
+			ID: uint(id),
+		},
+	}).First(link)
+
+	if link.ID == 0 {
+		c.JSON(http.StatusNotFound, http.StatusText(http.StatusNotFound))
+		return
+	}
+
+	database.DB.Delete(link)
+
+	c.JSON(http.StatusNoContent, http.StatusText(http.StatusNoContent))
 }
 
 func saveLink(c *gin.Context, OriginalURL string, Alias string, Password string, UserID uint) {
