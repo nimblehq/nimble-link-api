@@ -1,11 +1,11 @@
 package routes
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/nimble-link/backend/pkg/ginutils"
-	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
+	"github.com/gin-gonic/gin"
 	"github.com/nimble-link/backend/middlewares"
+	"github.com/nimble-link/backend/pkg/ginutils"
 )
 
 func Register(g *gin.Engine) *gin.Engine {

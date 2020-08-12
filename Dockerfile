@@ -13,7 +13,13 @@ COPY . .
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build
 
 # Release stage
-FROM scratch as release
+FROM alpine as release
+
+RUN apk update \
+        && apk upgrade \
+        && apk add --no-cache \
+        ca-certificates \
+        && update-ca-certificates 2>/dev/null || true
 
 ENV APP_ENV=release
 
