@@ -13,6 +13,7 @@ func SetupDB() *gorm.DB {
 
 	db.AutoMigrate(&models.User{})
 	db.AutoMigrate(&models.Link{})
+	db.AutoMigrate(&models.Token{})
 
 	return db
 }

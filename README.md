@@ -16,3 +16,8 @@ make run
 ```
 
 Backend server will be served at: [localhost:8080](http://localhost:8080) by default
+
+### Wiki
+
+##### Google OAuth2 Flow
+[https://developers.google.com/identity/sign-in/web/server-side-flow](https://developers.google.com/identity/sign-in/web/server-side-flow)

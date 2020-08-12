@@ -8,8 +8,9 @@ type Link struct {
 	BaseModel
 	OriginalURL string `json:"original_url" gorm:"column:original_url;not null"`
 	Alias       string `json:"alias" gorm:"column:alias;type:varchar(255);unique;not null"`
-	Password    string `json:"password" gorm:"column:password;type:varchar(255);;default:NULL"`
-	UserID      uint   `json:"-"`
+	Password    string `json:"password" gorm:"column:password;type:varchar(255);default:NULL"`
+	User        User   `json:"-"`
+	UserID      uint   `json:"user_id"`
 }
 
 func (link *Link) Save() []error {

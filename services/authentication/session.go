@@ -9,8 +9,8 @@ import (
 
 func GetCurrentUserFromContext(c *gin.Context) (*models.User, error) {
 	err := errors.New("Failed to get current user from context")
-	savedUser := c.Keys["current_user"]
-	if savedUser == nil {
+	savedUser, exists := c.Get("current_user")
+	if !exists {
 		return nil, err
 	}
 

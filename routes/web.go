@@ -20,10 +20,7 @@ func registerWeb(r *ginutils.ApplicationRouter, mids ...gin.HandlerFunc) {
 		c.JSON(http.StatusOK, c.Keys["current_user"])
 	})
 
-	r.Register("GET", "/oauth2/callback", controllers.LoginCallback)
+	r.Register("POST", "/storeauthcode", controllers.OAuth2Handler)
 
-	r.Register("GET", "/login", middlewares.Guest(), controllers.Login)
 	r.Register("POST", "/logout", middlewares.Authenticated(), controllers.Logout)
-
-	r.Register("POST", "/links", controllers.CreateLink)
 }

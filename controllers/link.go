@@ -23,7 +23,7 @@ func CreateLink(c *gin.Context) {
 	}
 
 	user, err := authentication.GetCurrentUserFromContext(c)
-	if err != nil {
+	if err != nil || user == nil {
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}

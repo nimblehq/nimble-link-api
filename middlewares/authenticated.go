@@ -4,12 +4,13 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/nimble-link/backend/services/authentication"
 )
 
 func Authenticated() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		currentUser := c.Keys["current_user"]
-		if currentUser == nil {
+		currentUser, err := authentication.GetCurrentUserFromContext(c)
+		if err != nil || currentUser == nil {
 			c.AbortWithStatus(http.StatusUnauthorized)
 
 			return
