@@ -59,7 +59,7 @@ func LoginCallback(c *gin.Context) {
 	code := c.Request.URL.Query().Get("code")
 	token, err := conf.Exchange(oauth2.NoContext, code)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, http.StatusText(http.StatusBadRequest))
+		c.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -76,7 +76,7 @@ func LoginCallback(c *gin.Context) {
 	json.Unmarshal(data, &user)
 
 	savedUser := models.FindUserByEmail(user.Email)
-	if savedUser == nil {
+	if savedUser.ID == 0 {
 		user.Save()
 		savedUser = &user
 	}
