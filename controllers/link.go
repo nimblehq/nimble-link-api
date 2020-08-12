@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/nimble-link/backend/database"
 	"github.com/nimble-link/backend/models"
 	"github.com/nimble-link/backend/pkg/linkutils"
 	"github.com/nimble-link/backend/services/authentication"
@@ -48,6 +49,19 @@ func CreateLink(c *gin.Context) {
 	}
 }
 
+func GetLinks(c *gin.Context) {
+	user, err := authentication.GetCurrentUserFromContext(c)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, err.Error())
+		return
+	}
+
+	var links []models.Link
+	database.DB.Model(user).Related(&links)
+
+	c.JSON(http.StatusOK, links)
+}
+
 func saveLink(c *gin.Context, OriginalURL string, Alias string, Password string, UserID uint) {
 	link := models.Link{OriginalURL: OriginalURL, Alias: Alias, Password: Password, UserID: UserID}
 	if errors := link.Save(); errors != nil {
@@ -55,5 +69,5 @@ func saveLink(c *gin.Context, OriginalURL string, Alias string, Password string,
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": link})
+	c.JSON(http.StatusOK, link)
 }

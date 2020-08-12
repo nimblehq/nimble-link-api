@@ -11,4 +11,5 @@ func registerApi(r *ginutils.ApplicationRouter, mids ...gin.HandlerFunc) {
 	r.Middlewares(mids...)
 
 	r.Register("POST", "/links", middlewares.Authenticated(), controllers.CreateLink)
+	r.Register("GET", "/links", middlewares.Authenticated(), controllers.GetLinks)
 }
