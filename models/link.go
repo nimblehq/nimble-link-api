@@ -24,5 +24,6 @@ func (link *Link) Save() []error {
 func FindLinkByAlias(alias string) *Link {
 	var link = new(Link)
 	database.DB.Where("alias = ?", alias).First(link)
+
 	return link
 }

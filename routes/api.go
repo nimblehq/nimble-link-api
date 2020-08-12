@@ -12,4 +12,5 @@ func registerApi(r *ginutils.ApplicationRouter, mids ...gin.HandlerFunc) {
 
 	r.Register("POST", "/links", middlewares.Authenticated(), controllers.CreateLink)
 	r.Register("GET", "/links", middlewares.Authenticated(), controllers.GetLinks)
+	r.Register("DELETE", "/links/:id", middlewares.Authenticated(), controllers.DeleteLink)
 }
