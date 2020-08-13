@@ -13,16 +13,20 @@ import (
 	"golang.org/x/oauth2/google"
 )
 
-func OAuth2Handler(c *gin.Context) {
-	body, err := ioutil.ReadAll(c.Request.Body)
-	defer c.Request.Body.Close()
+type oauth2Form struct {
+	Code         string `form:"code"`
+	CodeVerifier string `form:"code_verifier"`
+}
 
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
+func OAuth2Handler(c *gin.Context) {
+	var form oauth2Form
+
+	if err := c.ShouldBind(&form); err != nil {
+		c.JSON(http.StatusUnprocessableEntity, err.Error())
 		return
 	}
-	code := string(body[:])
-	savedUser, err := exchangeCode(code)
+
+	savedUser, err := exchangeCode(form.Code, form.CodeVerifier)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return
@@ -33,16 +37,17 @@ func OAuth2Handler(c *gin.Context) {
 	c.JSON(http.StatusOK, token)
 }
 
-func exchangeCode(code string) (*models.User, error) {
+func exchangeCode(code string, codeVerifier string) (*models.User, error) {
 	conf := &oauth2.Config{
 		ClientID:     os.Getenv("OAUTH2_CLIENT_ID"),
 		ClientSecret: os.Getenv("OAUTH2_CLIENT_SECRET"),
-		RedirectURL:  "postmessage",
+		RedirectURL:  "http://localhost:3000/login",
 		Scopes:       []string{"https://www.googleapis.com/auth/userinfo.email"},
 		Endpoint:     google.Endpoint,
 	}
 
-	token, err := conf.Exchange(oauth2.NoContext, code)
+	codeVerifierOption := oauth2.SetAuthURLParam("code_verifier", codeVerifier)
+	token, err := conf.Exchange(oauth2.NoContext, code, codeVerifierOption)
 	if err != nil {
 		log.Println("TOKEN", err.Error())
 		return nil, err
