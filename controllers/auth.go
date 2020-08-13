@@ -17,6 +17,8 @@ type oauth2Form struct {
 	CodeVerifier string `form:"code_verifier"`
 }
 
+var conf *oauth2.Config
+
 func OAuth2Handler(c *gin.Context) {
 	var form oauth2Form
 
@@ -37,12 +39,14 @@ func OAuth2Handler(c *gin.Context) {
 }
 
 func exchangeCode(code string, codeVerifier string) (*models.User, error) {
-	conf := &oauth2.Config{
-		ClientID:     os.Getenv("OAUTH2_CLIENT_ID"),
-		ClientSecret: os.Getenv("OAUTH2_CLIENT_SECRET"),
-		RedirectURL:  os.Getenv("OAUTH2_REDIRECT_URL"),
-		Scopes:       []string{"https://www.googleapis.com/auth/userinfo.email"},
-		Endpoint:     google.Endpoint,
+	if conf == nil {
+		conf = &oauth2.Config{
+			ClientID:     os.Getenv("OAUTH2_CLIENT_ID"),
+			ClientSecret: os.Getenv("OAUTH2_CLIENT_SECRET"),
+			RedirectURL:  os.Getenv("OAUTH2_REDIRECT_URL"),
+			Scopes:       []string{"https://www.googleapis.com/auth/userinfo.email"},
+			Endpoint:     google.Endpoint,
+		}
 	}
 
 	codeVerifierOption := oauth2.SetAuthURLParam("code_verifier", codeVerifier)
