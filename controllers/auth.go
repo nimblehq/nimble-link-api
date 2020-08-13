@@ -3,7 +3,6 @@ package controllers
 import (
 	"encoding/json"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
 
@@ -41,7 +40,7 @@ func exchangeCode(code string, codeVerifier string) (*models.User, error) {
 	conf := &oauth2.Config{
 		ClientID:     os.Getenv("OAUTH2_CLIENT_ID"),
 		ClientSecret: os.Getenv("OAUTH2_CLIENT_SECRET"),
-		RedirectURL:  "http://localhost:3000/login",
+		RedirectURL:  os.Getenv("OAUTH2_REDIRECT_URL"),
 		Scopes:       []string{"https://www.googleapis.com/auth/userinfo.email"},
 		Endpoint:     google.Endpoint,
 	}
@@ -49,14 +48,12 @@ func exchangeCode(code string, codeVerifier string) (*models.User, error) {
 	codeVerifierOption := oauth2.SetAuthURLParam("code_verifier", codeVerifier)
 	token, err := conf.Exchange(oauth2.NoContext, code, codeVerifierOption)
 	if err != nil {
-		log.Println("TOKEN", err.Error())
 		return nil, err
 	}
 	client := conf.Client(oauth2.NoContext, token)
 
 	userInfo, err := client.Get("https://www.googleapis.com/oauth2/v3/userinfo")
 	if err != nil {
-		log.Println("CLIENT", err.Error())
 		return nil, err
 	}
 	defer userInfo.Body.Close()
