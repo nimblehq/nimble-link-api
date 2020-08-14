@@ -14,7 +14,7 @@ func Register(g *gin.Engine) *gin.Engine {
 	config := cors.DefaultConfig()
 	config.AddAllowHeaders("X-Requested-With")
 	config.AddAllowHeaders("Authorization")
-	config.AllowOrigins = []string{"http://localhost:3000"}
+	config.AllowAllOrigins = true
 	g.Use(cors.New(config))
 
 	g.Use(middlewares.CurrentUser())
