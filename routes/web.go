@@ -1,8 +1,6 @@
 package routes
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 	"github.com/nimble-link/backend/controllers"
 	"github.com/nimble-link/backend/middlewares"
@@ -12,15 +10,9 @@ import (
 func registerWeb(r *ginutils.ApplicationRouter, mids ...gin.HandlerFunc) {
 	r.Middlewares(mids...)
 
-	r.Register("GET", "/", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{})
-	})
-
-	r.Register("GET", "/dashboard", middlewares.Authenticated(), func(c *gin.Context) {
-		c.JSON(http.StatusOK, c.Keys["current_user"])
-	})
-
 	r.Register("POST", "/auth/storeauthcode", controllers.OAuth2Handler)
 	r.Register("POST", "/auth/logout", middlewares.Authenticated(), controllers.Logout)
 	r.Register("GET", "/auth/userinfo", middlewares.Authenticated(), controllers.GetUserInfo)
+
+	r.Register("POST", "/auth/refresh_token", controllers.RefreshToken)
 }

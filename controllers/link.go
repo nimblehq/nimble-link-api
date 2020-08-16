@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"net/http"
+	"os"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -87,6 +88,58 @@ func DeleteLink(c *gin.Context) {
 	database.DB.Delete(link)
 
 	c.JSON(http.StatusNoContent, http.StatusText(http.StatusNoContent))
+}
+
+func GetLink(c *gin.Context) {
+	alias := c.Param("alias")
+	if alias == "" {
+		c.JSON(http.StatusNotFound, http.StatusText(http.StatusNotFound))
+		return
+	}
+
+	var link = new(models.Link)
+	database.DB.Where(&models.Link{
+		Alias: alias,
+	}).First(link)
+
+	if link.ID == 0 {
+		c.JSON(http.StatusNotFound, http.StatusText(http.StatusNotFound))
+		return
+	}
+
+	if link.Password != "" {
+		c.Redirect(http.StatusTemporaryRedirect, os.Getenv("FRONTEND_URL"))
+		return
+	}
+
+	c.Redirect(http.StatusTemporaryRedirect, link.OriginalURL)
+}
+
+func GetLinkWithPassword(c *gin.Context) {
+	alias := c.Param("alias")
+	password := c.PostForm("password")
+
+	if alias == "" {
+		c.JSON(http.StatusNotFound, http.StatusText(http.StatusNotFound))
+		return
+	}
+
+	var link = new(models.Link)
+	database.DB.Where(&models.Link{
+		Alias: alias,
+	}).First(link)
+
+	if link.ID == 0 {
+		c.JSON(http.StatusNotFound, http.StatusText(http.StatusNotFound))
+		return
+	}
+
+	if link.Password != password {
+		c.JSON(http.StatusUnauthorized, http.StatusText(http.StatusUnauthorized))
+		return
+	}
+
+	c.JSON(http.StatusOK, link)
 }
 
 func saveLink(c *gin.Context, OriginalURL string, Alias string, Password string, UserID uint) {
