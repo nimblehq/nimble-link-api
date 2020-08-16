@@ -10,9 +10,9 @@ import (
 func registerApi(r *ginutils.ApplicationRouter, mids ...gin.HandlerFunc) {
 	r.Middlewares(mids...)
 
-	r.Register("POST", "/links", middlewares.Authenticated(), controllers.CreateLink)
-	r.Register("GET", "/links", middlewares.Authenticated(), controllers.GetLinks)
-	r.Register("DELETE", "/links/:id", middlewares.Authenticated(), controllers.DeleteLink)
-
-	r.Register("POST", "/refresh_token", controllers.RefreshToken)
+	r.Register("GET", "api/v1/links/:alias", controllers.GetLink)
+	r.Register("POST", "api/v1/links/:alias", controllers.GetLinkWithPassword)
+	r.Register("POST", "api/v1/links", middlewares.Authenticated(), controllers.CreateLink)
+	r.Register("GET", "api/v1/links", middlewares.Authenticated(), controllers.GetLinks)
+	r.Register("DELETE", "api/v1/links/:id", middlewares.Authenticated(), controllers.DeleteLink)
 }
