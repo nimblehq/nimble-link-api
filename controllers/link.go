@@ -21,7 +21,7 @@ type ShortLinkInput struct {
 func CreateLink(c *gin.Context) {
 	var input ShortLinkInput
 	if err := c.ShouldBindJSON(&input); err != nil {
-		c.AbortWithStatus(http.StatusUnprocessableEntity)
+		c.JSON(http.StatusUnprocessableEntity, err.Error())
 		return
 	}
 
@@ -112,6 +112,8 @@ func GetLink(c *gin.Context) {
 		return
 	}
 
+	link.IncrementCounter()
+
 	c.Redirect(http.StatusTemporaryRedirect, link.OriginalURL)
 }
 
@@ -138,6 +140,8 @@ func GetLinkWithPassword(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, http.StatusText(http.StatusUnauthorized))
 		return
 	}
+
+	link.IncrementCounter()
 
 	c.JSON(http.StatusOK, link)
 }
