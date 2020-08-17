@@ -41,7 +41,7 @@ func CreateLink(c *gin.Context) {
 
 	if alias := input.Alias; alias != "" {
 		if linkutils.IsDuplicateAlias(alias) {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Duplicate Alias"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "This alias is already used"})
 		} else {
 			saveLink(c, originalURL, alias, input.Password, userID)
 		}
@@ -159,7 +159,7 @@ func UpdateLink(c *gin.Context) {
 	}
 
 	if input.Password == "" && input.Alias == "" {
-		c.JSON(http.StatusNoContent, http.StatusText(http.StatusNoContent))
+		c.JSON(http.StatusUnprocessableEntity, http.StatusText(http.StatusUnprocessableEntity))
 		return
 	}
 
@@ -189,7 +189,7 @@ func UpdateLink(c *gin.Context) {
 
 	if input.Alias != "" {
 		if linkutils.IsDuplicateAlias(input.Alias) {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Duplicate Alias"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "This alias is already used"})
 			return
 		}
 		link.Alias = input.Alias
