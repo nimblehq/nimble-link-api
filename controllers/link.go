@@ -18,6 +18,11 @@ type ShortLinkInput struct {
 	Password    string `json:"password"`
 }
 
+type UpdateLinkInput struct {
+	Alias    string `json:"alias"`
+	Password string `json:"password"`
+}
+
 func CreateLink(c *gin.Context) {
 	var input ShortLinkInput
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -36,7 +41,7 @@ func CreateLink(c *gin.Context) {
 
 	if alias := input.Alias; alias != "" {
 		if linkutils.IsDuplicateAlias(alias) {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Duplicate Alias"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "This alias is already used"})
 		} else {
 			saveLink(c, originalURL, alias, input.Password, userID)
 		}
@@ -142,6 +147,55 @@ func GetLinkWithPassword(c *gin.Context) {
 	}
 
 	link.IncrementCounter()
+
+	c.JSON(http.StatusOK, link)
+}
+
+func UpdateLink(c *gin.Context) {
+	var input UpdateLinkInput
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusUnprocessableEntity, err.Error())
+		return
+	}
+
+	if input.Password == "" && input.Alias == "" {
+		c.JSON(http.StatusUnprocessableEntity, http.StatusText(http.StatusUnprocessableEntity))
+		return
+	}
+
+	user, _ := authentication.GetCurrentUserFromContext(c)
+	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		c.JSON(http.StatusNotFound, http.StatusText(http.StatusNotFound))
+		return
+	}
+
+	var link = new(models.Link)
+	database.DB.Where(&models.Link{
+		UserID: user.ID,
+		BaseModel: models.BaseModel{
+			ID: uint(id),
+		},
+	}).First(link)
+
+	if link.ID == 0 {
+		c.JSON(http.StatusNotFound, http.StatusText(http.StatusNotFound))
+		return
+	}
+
+	if input.Password != "" {
+		link.Password = input.Password
+	}
+
+	if input.Alias != "" {
+		if linkutils.IsDuplicateAlias(input.Alias) {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "This alias is already used"})
+			return
+		}
+		link.Alias = input.Alias
+	}
+
+	database.DB.Save(link)
 
 	c.JSON(http.StatusOK, link)
 }
