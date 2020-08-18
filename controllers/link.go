@@ -85,7 +85,7 @@ func DeleteLink(c *gin.Context) {
 		return
 	}
 
-	database.DB.Delete(link)
+	database.DB.Unscoped().Delete(link) // Delete record permanently
 
 	c.JSON(http.StatusNoContent, http.StatusText(http.StatusNoContent))
 }

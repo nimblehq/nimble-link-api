@@ -7,7 +7,9 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
+	"github.com/nimble-link/backend/database"
 	"github.com/nimble-link/backend/models"
+	"github.com/nimble-link/backend/services/authentication"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 )
@@ -36,6 +38,23 @@ func OAuth2Handler(c *gin.Context) {
 	token := savedUser.GenerateAccessToken()
 
 	c.JSON(http.StatusOK, token)
+}
+
+func Logout(c *gin.Context) {
+	user, err := authentication.GetCurrentUserFromContext(c)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, err.Error())
+		return
+	}
+
+	var tokens []models.Token
+
+	database.DB.Model(user).Related(&tokens)
+	for _, token := range tokens {
+		database.DB.Unscoped().Delete(token) // Delete record permanently
+	}
+
+	c.JSON(http.StatusOK, http.StatusText(http.StatusOK))
 }
 
 func exchangeCode(code string, codeVerifier string) (*models.User, error) {
