@@ -122,9 +122,18 @@ func GetLink(c *gin.Context) {
 	c.Redirect(http.StatusTemporaryRedirect, link.OriginalURL)
 }
 
+type GetLinkWithPasswordInput struct {
+	Password string `json:"password" binding:"required"`
+}
+
 func GetLinkWithPassword(c *gin.Context) {
+	var input GetLinkWithPasswordInput
 	alias := c.Param("alias")
-	password := c.PostForm("password")
+
+	if err := c.BindJSON(&input); err != nil {
+		c.JSON(http.StatusUnprocessableEntity, err.Error())
+		return
+	}
 
 	if alias == "" {
 		c.JSON(http.StatusNotFound, http.StatusText(http.StatusNotFound))
@@ -141,7 +150,7 @@ func GetLinkWithPassword(c *gin.Context) {
 		return
 	}
 
-	if link.Password != password {
+	if link.Password != input.Password {
 		c.JSON(http.StatusUnauthorized, http.StatusText(http.StatusUnauthorized))
 		return
 	}
