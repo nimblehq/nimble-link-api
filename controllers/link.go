@@ -30,29 +30,25 @@ func CreateLink(c *gin.Context) {
 		return
 	}
 
+	originalURL := input.OriginalURL
+
 	user, err := authentication.GetCurrentUserFromContext(c)
 	if err != nil || user == nil {
-		c.AbortWithStatus(http.StatusUnauthorized)
+		generateRandomLinkAndSave(c, originalURL, "", 0)
 		return
 	}
 
 	userID := user.ID
-	originalURL := input.OriginalURL
+	password := input.Password
 
 	if alias := input.Alias; alias != "" {
 		if linkutils.IsDuplicateAlias(alias) {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "This alias is already used"})
 		} else {
-			saveLink(c, originalURL, alias, input.Password, userID)
+			saveLink(c, originalURL, alias, password, userID)
 		}
 	} else {
-		alias := linkutils.GenerateHashFrom(originalURL, userID)
-
-		for linkutils.IsDuplicateAlias(alias) {
-			alias = linkutils.GenerateHashFrom(originalURL, userID)
-		}
-
-		saveLink(c, originalURL, alias, input.Password, userID)
+		generateRandomLinkAndSave(c, originalURL, password, userID)
 	}
 }
 
@@ -209,8 +205,18 @@ func UpdateLink(c *gin.Context) {
 	c.JSON(http.StatusOK, link)
 }
 
-func saveLink(c *gin.Context, OriginalURL string, Alias string, Password string, UserID uint) {
-	link := models.Link{OriginalURL: OriginalURL, Alias: Alias, Password: Password, UserID: UserID}
+func generateRandomLinkAndSave(c *gin.Context, originalURL string, password string, userID uint) {
+	alias := linkutils.GenerateHashFrom(originalURL, userID)
+
+	for linkutils.IsDuplicateAlias(alias) {
+		alias = linkutils.GenerateHashFrom(originalURL, userID)
+	}
+
+	saveLink(c, originalURL, alias, password, userID)
+}
+
+func saveLink(c *gin.Context, originalURL string, alias string, password string, userID uint) {
+	link := models.Link{OriginalURL: originalURL, Alias: alias, Password: password, UserID: userID}
 	if errors := link.Save(); errors != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"errors": errors})
 		return
