@@ -188,11 +188,11 @@ func UpdateLink(c *gin.Context) {
 		return
 	}
 
-	if input.Password != "" {
+	if input.Password != link.Password {
 		link.Password = input.Password
 	}
 
-	if input.Alias != "" {
+	if input.Alias != link.Alias {
 		if linkutils.IsDuplicateAlias(input.Alias) {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "This alias is already used"})
 			return
