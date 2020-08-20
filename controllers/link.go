@@ -147,7 +147,7 @@ func GetLinkWithPassword(c *gin.Context) {
 	}
 
 	if link.Password != input.Password {
-		c.JSON(http.StatusUnauthorized, http.StatusText(http.StatusUnauthorized))
+		c.JSON(http.StatusForbidden, http.StatusText(http.StatusUnauthorized))
 		return
 	}
 
