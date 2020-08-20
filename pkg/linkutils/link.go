@@ -4,6 +4,7 @@ import (
 	"crypto/md5"
 	"encoding/base64"
 	"encoding/hex"
+	"net/url"
 	"strconv"
 	"time"
 
@@ -21,6 +22,20 @@ func GenerateHashFrom(originalURL string, userID uint) string {
 	md5Hashed := getMD5Hash(strconv.FormatUint(uint64(userID), 10) + currentTime + originalURL)
 	base64Hashed := getBase64Hash(md5Hashed)
 	return base64Hashed[0:6]
+}
+
+func IsValidUrl(s string) bool {
+	_, err := url.ParseRequestURI(s)
+	if err != nil {
+		return false
+	}
+
+	u, err := url.Parse(s)
+	if err != nil || u.Scheme == "" || u.Host == "" {
+		return false
+	}
+
+	return true
 }
 
 func getMD5Hash(text string) string {
