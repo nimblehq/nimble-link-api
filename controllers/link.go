@@ -33,6 +33,11 @@ func CreateLink(c *gin.Context) {
 
 	originalURL := input.OriginalURL
 
+	if !linkutils.IsValidUrl(originalURL) {
+		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": "Invalid URL"})
+		return
+	}
+
 	user, err := authentication.GetCurrentUserFromContext(c)
 	if err != nil || user == nil {
 		generateRandomLinkAndSave(c, originalURL, "", 0)
