@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 	"strconv"
@@ -109,7 +110,10 @@ func GetLink(c *gin.Context) {
 	}
 
 	if link.Password != "" {
-		c.Redirect(http.StatusTemporaryRedirect, os.Getenv("FRONTEND_URL"))
+		c.Redirect(
+			http.StatusTemporaryRedirect,
+			fmt.Sprintf("%s/go/%s", os.Getenv("FRONTEND_URL"), link.Alias),
+		)
 		return
 	}
 
