@@ -172,7 +172,7 @@ func UpdateLink(c *gin.Context) {
 		return
 	}
 
-	if input.Password == "" && input.Alias == "" {
+	if input.Alias == "" {
 		c.JSON(http.StatusUnprocessableEntity, http.StatusText(http.StatusUnprocessableEntity))
 		return
 	}
