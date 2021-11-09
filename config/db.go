@@ -3,15 +3,12 @@ package config
 import (
 	"fmt"
 	"os"
+
+	"github.com/gin-gonic/gin"
 )
 
 type dbConfig struct {
 	Connection string
-	Host       string
-	Port       string
-	Database   string
-	Username   string
-	Password   string
 
 	URL   string
 	Debug bool
@@ -19,24 +16,29 @@ type dbConfig struct {
 
 func newDBConfig() *dbConfig {
 	connection := os.Getenv("DB_CONNECTION")
-	username := os.Getenv("DB_USERNAME")
-	password := os.Getenv("DB_PASSWORD")
-	host := os.Getenv("DB_HOST")
-	port := os.Getenv("DB_PORT")
+	if connection == "" {
+		connection = "postgres"
+	}
 
-	database := os.Getenv("DB_DATABASE")
-	database = database + "_" + AppConfig.RunMode
+	var databaseURL string
 
-	url := createDatabaseURL(username, password, host, port, database)
+	if gin.Mode() == gin.ReleaseMode {
+		databaseURL = os.Getenv("DATABASE_URL")
+	} else {
+		username := os.Getenv("DB_USERNAME")
+		password := os.Getenv("DB_PASSWORD")
+		host := os.Getenv("DB_HOST")
+		port := os.Getenv("DB_PORT")
+
+		database := os.Getenv("DB_DATABASE")
+		database = database + "_" + AppConfig.RunMode
+
+		databaseURL = createDatabaseURL(username, password, host, port, database)
+	}
 
 	return &dbConfig{
 		Connection: connection,
-		Host:       host,
-		Port:       port,
-		Database:   database,
-		Username:   username,
-		Password:   password,
-		URL:        url,
+		URL:        databaseURL,
 	}
 }
 
