@@ -1,7 +1,6 @@
 resource "heroku_config" "common" {
   # Environment variables
   vars = {
-    APP_ADDR = ":8080"
     APP_RUN_MODE = "release"
     APP_ENV = "release"
     DB_CONNECTION = "postgres"
