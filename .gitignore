@@ -3,3 +3,9 @@
 
 !.env
 !.env.release
+
+# Terraform generated files
+deploy/**/.terraform/
+deploy/**/terraform.tfstate
+deploy/**/terraform.tfstate.backup
+deploy/**/*.tfvars
