@@ -2,9 +2,11 @@ package config
 
 import (
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/gin-gonic/gin"
+	"github.com/xo/dburl"
 )
 
 type dbConfig struct {
@@ -16,14 +18,18 @@ type dbConfig struct {
 
 func newDBConfig() *dbConfig {
 	connection := os.Getenv("DB_CONNECTION")
-	if connection == "" {
-		connection = "postgres"
-	}
 
 	var databaseURL string
 
 	if gin.Mode() == gin.ReleaseMode {
-		databaseURL = os.Getenv("DATABASE_URL")
+		url := os.Getenv("DATABASE_URL")
+		u, err := dburl.Parse(url)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		databaseURL = u.DSN
+		connection = u.Driver
 	} else {
 		username := os.Getenv("DB_USERNAME")
 		password := os.Getenv("DB_PASSWORD")
