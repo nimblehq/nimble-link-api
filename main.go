@@ -20,7 +20,7 @@ func main() {
 	bootstrap.SetupGin(g)
 	bootstrap.SetupRouter(g)
 
-	if err := http.ListenAndServe(config.AppConfig.Addr, g); err != nil {
+	if err := http.ListenAndServe(fmt.Sprintf(":%s", config.AppConfig.Addr), g); err != nil {
 		log.Fatal(fmt.Sprintf("Failed to start server %v", err))
 	}
 }
