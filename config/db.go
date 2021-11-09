@@ -21,6 +21,8 @@ func newDBConfig() *dbConfig {
 
 	var databaseURL string
 
+	log.Print("gin.Mode(): ", gin.Mode())
+
 	if gin.Mode() == gin.ReleaseMode {
 		url := os.Getenv("DATABASE_URL")
 		u, err := dburl.Parse(url)
