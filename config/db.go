@@ -2,16 +2,15 @@ package config
 
 import (
 	"fmt"
+	"log"
 	"os"
+
+	"github.com/gin-gonic/gin"
+	"github.com/xo/dburl"
 )
 
 type dbConfig struct {
 	Connection string
-	Host       string
-	Port       string
-	Database   string
-	Username   string
-	Password   string
 
 	URL   string
 	Debug bool
@@ -19,24 +18,33 @@ type dbConfig struct {
 
 func newDBConfig() *dbConfig {
 	connection := os.Getenv("DB_CONNECTION")
-	username := os.Getenv("DB_USERNAME")
-	password := os.Getenv("DB_PASSWORD")
-	host := os.Getenv("DB_HOST")
-	port := os.Getenv("DB_PORT")
 
-	database := os.Getenv("DB_DATABASE")
-	database = database + "_" + AppConfig.RunMode
+	var databaseURL string
 
-	url := createDatabaseURL(username, password, host, port, database)
+	if AppConfig.RunMode == gin.ReleaseMode {
+		url := os.Getenv("DATABASE_URL")
+		u, err := dburl.Parse(url)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		databaseURL = u.DSN
+		connection = u.Driver
+	} else {
+		username := os.Getenv("DB_USERNAME")
+		password := os.Getenv("DB_PASSWORD")
+		host := os.Getenv("DB_HOST")
+		port := os.Getenv("DB_PORT")
+
+		database := os.Getenv("DB_DATABASE")
+		database = database + "_" + AppConfig.RunMode
+
+		databaseURL = createDatabaseURL(username, password, host, port, database)
+	}
 
 	return &dbConfig{
 		Connection: connection,
-		Host:       host,
-		Port:       port,
-		Database:   database,
-		Username:   username,
-		Password:   password,
-		URL:        url,
+		URL:        databaseURL,
 	}
 }
 

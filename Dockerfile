@@ -25,6 +25,6 @@ ENV APP_ENV=release
 
 COPY --from=builder /app/backend /app/
 
-EXPOSE 8080
+EXPOSE $PORT
 
 ENTRYPOINT ["/app/backend"]
