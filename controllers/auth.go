@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"context"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
@@ -12,17 +13,22 @@ import (
 	"github.com/nimble-link/backend/services/authentication"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
+	"google.golang.org/api/idtoken"
 )
 
-type oauth2Form struct {
+type oauth2CodeForm struct {
 	Code         string `form:"code"`
 	CodeVerifier string `form:"code_verifier"`
 }
 
+type oauth2IdTokenForm struct {
+	IdToken string `form:"id_token"`
+}
+
 var conf *oauth2.Config
 
-func OAuth2Handler(c *gin.Context) {
-	var form oauth2Form
+func OAuth2CodeHandler(c *gin.Context) {
+	var form oauth2CodeForm
 
 	if err := c.ShouldBind(&form); err != nil {
 		c.JSON(http.StatusUnprocessableEntity, err.Error())
@@ -30,6 +36,27 @@ func OAuth2Handler(c *gin.Context) {
 	}
 
 	savedUser, err := exchangeCode(form.Code, form.CodeVerifier)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	token := savedUser.GenerateAccessToken()
+
+	c.JSON(http.StatusOK, token)
+}
+
+func OAuth2IdTokenHandler(c *gin.Context) {
+	var form oauth2IdTokenForm
+
+	if err := c.ShouldBind(&form); err != nil {
+		c.JSON(http.StatusUnprocessableEntity, err.Error())
+		return
+	}
+
+	savedUser, err := verifyIdToken(form.IdToken)
+
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return
@@ -55,6 +82,33 @@ func Logout(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, http.StatusText(http.StatusOK))
+}
+
+func verifyIdToken(idToken string) (*models.User, error) {
+	payload, err := idtoken.Validate(context.Background(), idToken, os.Getenv("OAUTH2_IOS_CLIENT_ID"))
+	if err != nil {
+		return nil, err
+	}
+
+	data, err := json.Marshal(payload.Claims)
+	if err != nil {
+		return nil, err
+	}
+
+	user := new(models.User)
+
+	err = json.Unmarshal(data, user)
+	if err != nil {
+		return nil, err
+	}
+
+	savedUser := models.FindUserByEmail(user.Email)
+	if savedUser.ID == 0 {
+		user.Save()
+		savedUser = user
+	}
+
+	return savedUser, err
 }
 
 func exchangeCode(code string, codeVerifier string) (*models.User, error) {
@@ -83,7 +137,11 @@ func exchangeCode(code string, codeVerifier string) (*models.User, error) {
 
 	data, _ := ioutil.ReadAll(userInfo.Body)
 	user := new(models.User)
-	json.Unmarshal(data, user)
+
+	err = json.Unmarshal(data, user)
+	if err != nil {
+		return nil, err
+	}
 
 	savedUser := models.FindUserByEmail(user.Email)
 	if savedUser.ID == 0 {
