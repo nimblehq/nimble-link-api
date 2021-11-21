@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # On Heroku, each web process simply binds to a port, and listens for requests coming in on that port.
 # The port to bind to is assigned by Heroku as the PORT environment variable randomly.

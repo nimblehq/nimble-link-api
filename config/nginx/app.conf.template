@@ -1,3 +1,5 @@
+events {}
+
 http {
   include /etc/nginx/mime.types;
 
@@ -49,54 +51,13 @@ http {
     proxy_set_header Host $http_host;
     proxy_redirect off;
 
-    access_log /dev/stdout;
-    error_log /dev/stdout;
-
     try_files $uri @app;
 
-    location @app {
+    location / {
       proxy_pass http://app;
       proxy_buffer_size 12k;
       proxy_buffers 8 12k;
       proxy_busy_buffers_size 24k;
-    }
-
-    # Static files
-    location ~ ^\/(assets|packs)\/.* {
-      gzip_static on;
-
-      sendfile on;
-      tcp_nopush on;
-
-      access_log off;
-
-      try_files $uri =404;
-
-      # Since Rails automatically appends digest fingerprints to asset file names, we don't need to worry about expiring them.
-      expires max;
-      add_header Cache-Control public;
-
-      error_page 404 /404.html;
-    }
-
-    # Error page stylesheets
-    location ~ ^\/(stylesheets|fonts)\/.* {
-      access_log off;
-
-      try_files $uri =404;
-
-      expires 3d;
-      add_header Cache-Control "public, must-revalidate";
-    }
-
-    # Favicon
-    location = /favicon.ico {
-      access_log off;
-
-      try_files $uri =404;
-
-      expires 30d;
-      add_header Cache-Control "public, must-revalidate";
     }
 
     client_max_body_size 100M;
@@ -115,11 +76,8 @@ http {
     proxy_set_header Host $http_host;
     proxy_redirect off;
 
-    access_log /dev/stdout;
-    error_log /dev/stdout;
-
-    location @app {
-      proxy_pass http://app/api/v1/links/$request_uri;
+    location ~ /(.*) {
+      proxy_pass http://app/api/v1/links/$1;
     }
   }
 }

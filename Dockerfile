@@ -26,8 +26,10 @@ ENV APP_ENV=release
 # Nginx config
 COPY config/nginx/app.conf.template /etc/nginx/conf.d/default.conf
 
+COPY bin /app/bin/
+
 COPY --from=builder /app/backend /app/
 
 EXPOSE $PORT
 
-CMD ./bin/start.sh
+CMD ["sh", "/app/bin/start.sh"]
