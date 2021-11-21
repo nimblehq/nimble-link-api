@@ -18,13 +18,16 @@ FROM alpine as release
 RUN apk update \
         && apk upgrade \
         && apk add --no-cache \
-        ca-certificates \
+        ca-certificates nginx \
         && update-ca-certificates 2>/dev/null || true
 
 ENV APP_ENV=release
+
+# Nginx config
+COPY config/nginx/app.conf.template /etc/nginx/conf.d/default.conf
 
 COPY --from=builder /app/backend /app/
 
 EXPOSE $PORT
 
-ENTRYPOINT ["/app/backend"]
+CMD ./bin/start.sh
