@@ -117,7 +117,7 @@ func GetLink(c *gin.Context) {
 	if link.Password != "" {
 		c.Redirect(
 			http.StatusTemporaryRedirect,
-			fmt.Sprintf("%s/go/%s", os.Getenv("FRONTEND_URL"), link.Alias),
+			fmt.Sprintf("%s/go?alias=%s", os.Getenv("FRONTEND_URL"), link.Alias),
 		)
 		return
 	}
