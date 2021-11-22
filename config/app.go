@@ -18,7 +18,7 @@ func newAppConfig() *appConfig {
 	return &appConfig{
 		Name:      "backend",
 		RunMode:   os.Getenv("APP_RUN_MODE"),
-		Addr:      os.Getenv("PORT"),
+		Addr:      os.Getenv("APP_PORT"),
 		SecretKey: os.Getenv("APP_SECRET_KEY"),
 	}
 }
